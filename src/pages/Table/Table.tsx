@@ -77,7 +77,7 @@ function TicketTable() {
   
     // Enviar dados para o backend
     try {
-      const response = await fetch('http://localhost:5173/backend', { // <-- URL correta
+      const response = await fetch('http://localhost:5173/login', { // <-- URL correta
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

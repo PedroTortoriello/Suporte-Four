@@ -6,9 +6,8 @@ import PageTitle from './components/PageTitle';
 import SignIn from './pages/Authentication/SignIn';
 import TicketTable from './pages/Table/Table';
 import Profile from './pages/Profile';
-import { Table } from './components/TableSettings';
 import SignUp from './pages/Authentication/SignUp';
-import MaintenancePage from './pages/maintenance/Manutencao';
+
 
 function App() {
   const { pathname } = useLocation();
@@ -54,15 +53,11 @@ function App() {
         }
       />
 
-    
-
-   
-
       <Route
-        path="/auth/signin"
+        path="/login"
         element={
           <>
-            <PageTitle title="Signin | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+            <PageTitle title="Suporte | Four" />
             <SignIn />
           </>
         }

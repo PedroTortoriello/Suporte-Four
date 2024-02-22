@@ -12,17 +12,43 @@ import Image from './scripts/Image';
 import './StyleLogin.css';
 
 const SignIn: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const togglePasswordVisibility = () => {
-      setIsPasswordVisible(!isPasswordVisible);
-  }
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5173/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      if (response.ok) {
+        setIsAuthenticated(true);
+      } else {
+        const errorMessage = await response.json();
+        throw new Error(errorMessage.error || 'Erro ao fazer login');
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+    }
+  };
+
   
   return (
-    <div className="login-page"> {/* Envolve todo o conteúdo da página de login */}
+    <div className="login-page"> 
       <div className="flex justify-center items-center">
         <div className='boxLeft'>
-          <form>
+          <form onSubmit={handleLogin}>
             <div className="boxRight boxRight md:hidden w-50 h-10 items-center justify-center ">
               <Image imageLink={Four2}  />
             </div>
@@ -34,37 +60,53 @@ const SignIn: React.FC = () => {
               <label htmlFor="email">Email<i>*</i></label>
               <MdMailOutline id="icon" className="material-icons" />
               <input
-                  className="input"
-                  name="email"
-                  id="email"
-                  type="email"
-                  placeholder="Digite seu email"
+                className="input"
+                name="email"
+                id="email"
+                type="email"
+                placeholder="Digite seu email"
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
               />
+
           </div>
 
           <div className="input-box">
               <label htmlFor="pswd">Senha<i>*</i></label>
               <MdPersonOutline id="icon" className="material-icons" />
               <input
-                  className="input"
-                  name="pswd"
-                  id="pswd"
-                  placeholder='Digite sua Senha'
+                className="input"
+                name="pswd"
+                id="pswd"
+                placeholder='Digite sua Senha'
+                type={isPasswordVisible ? "text" : "password"} 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)}
               />
 
           </div>
 
           <div className="button-container">
-            <Link to="/Table/Table">
-              <Button
-                name='button'
-                id='button'
-                type='submit' 
-                content="Login"
-                target="_blank"
-              />
-            </Link>
-          </div>
+              {isAuthenticated ? (
+                <Link to="/Table/Table">
+                  <Button
+                    name="button"
+                    id="button"
+                    type="submit"
+                    content="Login"
+                    target="_blank"
+                  />
+                </Link>
+              ) : (
+                <Button
+                  name="button"
+                  id="button"
+                  type="submit"
+                  content="Login"
+                  target="_blank"
+                />
+              )}
+            </div>
 
           <div className="signup-link">
             <Link to="/auth/signup">
