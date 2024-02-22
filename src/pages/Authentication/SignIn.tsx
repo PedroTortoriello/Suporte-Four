@@ -1,11 +1,6 @@
-"use client"
-
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdMailOutline, MdPersonOutline, MdOutlineVisibility  } from "react-icons/md";
-import Four from './four-logo.png';
-import Four2 from './Four-Tecnologia-Logo-footer.png'
+import { MdMailOutline, MdPersonOutline } from "react-icons/md";
 import Button from './scripts/Button';
 import Title from  './scripts/Title';
 import Image from './scripts/Image';
@@ -15,48 +10,48 @@ const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Inicializado como false
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleLogin = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:5173/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-  
-      if (response.ok) {
+        const response = await fetch('http://localhost:3033/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to login');
+        }
+        const data = await response.json();
+        // Se o login for bem-sucedido, atualize o estado isAuthenticated para true
         setIsAuthenticated(true);
-      } else {
-        const errorMessage = await response.json();
-        throw new Error(errorMessage.error || 'Erro ao fazer login');
-      }
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
+        console.error('Login Error:', error.message);
+        // Exibir mensagem de erro mais específica
+        setError('Failed to login: ' + error.message);
     }
   };
 
-  
   return (
     <div className="login-page"> 
       <div className="flex justify-center items-center">
         <div className='boxLeft'>
-          <form onSubmit={handleLogin}>
-            <div className="boxRight boxRight md:hidden w-50 h-10 items-center justify-center ">
-              <Image imageLink={Four2}  />
-            </div>
+          <form onSubmit={(e) => {
+              e.preventDefault(); // Evitar o comportamento padrão do formulário
+              handleLogin(email, password); // Chamar a função de login
+            }}>
             <Title
               title="Suporte  Four"
             />
 
-          <div className="input-box">
+            <div className="input-box">
               <label htmlFor="email">Email<i>*</i></label>
               <MdMailOutline id="icon" className="material-icons" />
               <input
@@ -68,10 +63,9 @@ const SignIn: React.FC = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
               />
+            </div>
 
-          </div>
-
-          <div className="input-box">
+            <div className="input-box">
               <label htmlFor="pswd">Senha<i>*</i></label>
               <MdPersonOutline id="icon" className="material-icons" />
               <input
@@ -83,41 +77,29 @@ const SignIn: React.FC = () => {
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)}
               />
-
-          </div>
-
-          <div className="button-container">
-              {isAuthenticated ? (
-                <Link to="/Table/Table">
-                  <Button
-                    name="button"
-                    id="button"
-                    type="submit"
-                    content="Login"
-                    target="_blank"
-                  />
-                </Link>
-              ) : (
-                <Button
-                  name="button"
-                  id="button"
-                  type="submit"
-                  content="Login"
-                  target="_blank"
-                />
-              )}
             </div>
 
-          <div className="signup-link">
-            <Link to="/auth/signup">
-              <p>Ainda não possui conta? <span className='text-[#177357] font-bold'>Cadastre-se</span>    </p>
-            </Link>
-          </div>
+            <div className="button-container">
+              {/* Botão de login condicional com base no estado de autenticação */}
+              <Button
+                name="button"
+                id="button"
+                type="submit"
+                content={isAuthenticated ? "Logged In" : "Login"}
+                target="_blank"
+              />
+            </div>
+
+            <div className="signup-link">
+              <Link to="/auth/signup">
+                <p>Ainda não possui conta? <span className='text-[#177357] font-bold'>Cadastre-se</span></p>
+              </Link>
+            </div>
           </form>
         </div>
 
         <div className="boxRight hidden md:block">
-          <Image imageLink={Four}  />
+          {/* Aqui você pode renderizar uma imagem ou outro conteúdo */}
         </div>
       </div>
     </div>

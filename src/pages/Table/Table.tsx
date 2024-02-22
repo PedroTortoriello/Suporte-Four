@@ -104,19 +104,22 @@ function TicketTable() {
     setCompletedTicketsCount(completedTicketsCount + 1);
   };
 
-  const handleEditTicket = (index) => {
-    setEditingTicketIndex(index);
-    setShowModal(true);
-    // Preencher o formulário com os dados do ticket selecionado
-    const ticket = openTickets[index];
-    setFormData({
-      name: ticket.name,
-      email: ticket.email,
-      sistema: ticket.sistema,
-      question: ticket.question
-    });
+  const handleEditTicket = (index, event) => {
+    // Verificar se o alvo do evento não é o checkbox
+    if (event.target.type !== 'checkbox') {
+      setEditingTicketIndex(index);
+      setShowModal(true);
+      // Preencher o formulário com os dados do ticket selecionado
+      const ticket = openTickets[index];
+      setFormData({
+        name: ticket.name,
+        email: ticket.email,
+        sistema: ticket.sistema,
+        question: ticket.question
+      });
+    }
   };
-
+  
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Atendimentos" />
@@ -161,7 +164,7 @@ function TicketTable() {
           </thead>
           <tbody>
             {openTickets.map((ticket, index) => (
-              <tr key={index} className="bg-zinc-50 text-zinc-800 hover:text-blue-500 text-sm font-light hover:bg-blue-100 border-b border-sky-700" onClick={() => handleEditTicket(index)}>
+              <tr key={index} className="bg-zinc-50 text-zinc-800 hover:text-blue-500 text-sm font-light hover:bg-blue-100 border-b border-sky-700" onClick={(event) => handleEditTicket(index, event)}>
                 <td className="cursor-pointer whitespace-nowrap text-center ">
                   <div className="py-2">
                     <span className="px-1 py-1">{ticket.codigo}</span>

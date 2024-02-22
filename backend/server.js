@@ -2,9 +2,10 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { MongoClient } = require('mongodb');
+const cors = require('cors'); 
 
 const app = express();
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 3033;
 const mongoURI = 'mongodb+srv://Pedro:brRJZ5Tb6H2BkbmT@cluster0.k7aaoi5.mongodb.net';
 
 // Conexão com o MongoDB
@@ -20,6 +21,12 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+};
+
+app.use(cors(corsOptions));
 
 // Rota de autenticação
 app.post('/login', async (req, res) => {
@@ -50,3 +57,8 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Erro ao fazer login' });
   }
 });
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
