@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import DefaultLayout from '../../layout/DefaultLayout';
 import CardDataStats from '../../components/CardDataStats';
-import { FaCheck, FaEnvelopeOpen } from 'react-icons/fa';
+import { FaCheck, FaEdit, FaEnvelopeOpen } from 'react-icons/fa';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { PlusCircle } from 'lucide-react';
+import api from '../Authentication/scripts/api';
 
 function TicketTable() {
   const [showModal, setShowModal] = useState(false);
@@ -75,22 +76,14 @@ function TicketTable() {
     });
     setShowModal(false);
   
-    // Enviar dados para o backend
     try {
-      const response = await fetch('http://localhost:5173/login', { // <-- URL correta
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(ticketData)
-      });
-      if (!response.ok) {
-        throw new Error('Erro ao enviar e-mail');
-      }
-      console.log('E-mail enviado com sucesso!');
+      const response = await api.post('/tickets', ticketData);
+      console.log('Dados enviados com sucesso:', response.data);
+      // Restante do seu código ...
     } catch (error) {
-      console.error('Erro ao enviar e-mail:', error);
+      console.error('Erro ao enviar dados:', error);
     }
+   
   };
 
   const handleCheckboxChange = (index) => {
@@ -160,6 +153,11 @@ function TicketTable() {
                   <span className="text-sm font-semibold text-black">Situação</span>
                 </div>
               </th>
+              <th className="py-6 px-6 whitespace-nowrap bg-sky-700">
+                <div className="flex flex-row items-center justify-center">
+                  <span className="text-sm font-semibold text-black"></span>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -194,6 +192,11 @@ function TicketTable() {
                       value="Concluído" 
                       onChange={() => handleCheckboxChange(index)} 
                     />
+                  </div>
+                </td>
+                <td className="cursor-pointer whitespace-nowrap text-center ">
+                  <div className="py-2">
+                    <span className="px-1 py-1 "><FaEdit /></span>
                   </div>
                 </td>
               </tr>

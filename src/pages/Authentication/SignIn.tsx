@@ -1,52 +1,74 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { MdMailOutline, MdPersonOutline } from "react-icons/md";
+import { useForm } from 'react-hook-form';
+import { AuthUserFormSchema } from './scripts/schemas';
+import api from './scripts/api';
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Button from './scripts/Button';
-import Title from  './scripts/Title';
+import Title from './scripts/Title';
 import Image from './scripts/Image';
+import Four from './four-logo.png';
+import Four2 from './Four-Tecnologia-Logo-footer.png';
 import './StyleLogin.css';
+import { Link } from 'react-router-dom';
+
+type AuthUserFormData = z.infer<typeof AuthUserFormSchema>;
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [error, setError] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Inicializado como false
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loggedInEmail, setLoggedInEmail] = useState("");
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AuthUserFormData>({
+    resolver: zodResolver(AuthUserFormSchema),
+  });
 
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible);
-  };
+  async function AuthUser(data: AuthUserFormData) {
+    setLoading(true);
 
-  const handleLogin = async (email: string, password: string) => {
     try {
-        const response = await fetch('http://localhost:3033/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-        if (!response.ok) {
-            throw new Error('Failed to login');
-        }
-        const data = await response.json();
-        // Se o login for bem-sucedido, atualize o estado isAuthenticated para true
-        setIsAuthenticated(true);
-    } catch (error) {
-        console.error('Login Error:', error.message);
-        // Exibir mensagem de erro mais específica
-        setError('Failed to login: ' + error.message);
-    }
-  };
+      const response = await api.post("/autenticacao", data);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("authenticate", response.data.authenticate);
 
+      const authString = localStorage.getItem("authenticate");
+
+      if (authString !== null) {
+        const auth = JSON.parse(authString);
+
+        if (auth === false) {
+          setError("Usuário ou senha incorreta!");
+          setTimeout(() => setError(""), 2100);
+        } else {
+          setLoggedInEmail(data.email);
+          window.location.href = "/Table/Table";
+          localStorage.setItem("user", data.email);
+        }
+      } else {
+        setError("Erro ao obter informações de autenticação.");
+        setTimeout(() => setError(""), 2100);
+      }
+    } catch (error) {
+      setError(error.message);
+      setTimeout(() => setError(""), 2100);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
   return (
-    <div className="login-page"> 
+    <div className="login-page">
       <div className="flex justify-center items-center">
         <div className='boxLeft'>
-          <form onSubmit={(e) => {
-              e.preventDefault(); // Evitar o comportamento padrão do formulário
-              handleLogin(email, password); // Chamar a função de login
-            }}>
+          <form onSubmit={handleSubmit(AuthUser)}>
+            <div className="boxRight boxRight md:hidden w-50 h-10 items-center justify-center ">
+              <Image imageLink={Four2}  />
+            </div>
             <Title
               title="Suporte  Four"
             />
@@ -56,12 +78,10 @@ const SignIn: React.FC = () => {
               <MdMailOutline id="icon" className="material-icons" />
               <input
                 className="input"
-                name="email"
+                {...register("email")}
                 id="email"
                 type="email"
                 placeholder="Digite seu email"
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
               />
             </div>
 
@@ -70,36 +90,33 @@ const SignIn: React.FC = () => {
               <MdPersonOutline id="icon" className="material-icons" />
               <input
                 className="input"
-                name="pswd"
+                {...register("password")}
                 id="pswd"
+                type="password"
                 placeholder='Digite sua Senha'
-                type={isPasswordVisible ? "text" : "password"} 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
+            {error && <p className="error-message">{error}</p>}
+
             <div className="button-container">
-              {/* Botão de login condicional com base no estado de autenticação */}
               <Button
-                name="button"
-                id="button"
-                type="submit"
-                content={isAuthenticated ? "Logged In" : "Login"}
-                target="_blank"
+                name='button'
+                id='button'
+                type='submit' 
+                content={loading ? "Aguarde..." : "Login"}
+                disabled={loading}
               />
             </div>
 
             <div className="signup-link">
-              <Link to="/auth/signup">
-                <p>Ainda não possui conta? <span className='text-[#177357] font-bold'>Cadastre-se</span></p>
-              </Link>
+              <p>Ainda não possui conta? <Link to="/auth/signup" className='text-[#177357] font-bold'>Cadastre-se</Link></p>
             </div>
           </form>
         </div>
 
         <div className="boxRight hidden md:block">
-          {/* Aqui você pode renderizar uma imagem ou outro conteúdo */}
+          <Image imageLink={Four}  />
         </div>
       </div>
     </div>

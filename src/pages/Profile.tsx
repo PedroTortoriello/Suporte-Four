@@ -95,9 +95,9 @@ const Profile = () => {
 
 
               <div className="mt-5 mx-auto max-w-180">
-                <h4 className="font-semibold text-black dark:text-white">
-                  E-mail
-                </h4>
+              <h4 className="font-semibold text-black dark:text-white">
+                E-mail: 
+              </h4>
 
               </div>
 
