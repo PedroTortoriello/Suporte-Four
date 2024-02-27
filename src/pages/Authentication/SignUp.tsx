@@ -57,6 +57,8 @@ const SignUp: React.FC = () => {
           setUserName(data.name);
           setUserEmpresa(data.empresa);
 
+          localStorage.setItem("userName", data.name);
+          localStorage.setItem("userEmpresa", data.empresa);
           window.location.href = "/Table/Table";
           localStorage.setItem("user", data.email);
         }

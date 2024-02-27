@@ -46,9 +46,10 @@ const SignIn: React.FC = () => {
           setTimeout(() => setError(""), 2100);
         } else {
           setLoggedInEmail(data.email);
+          localStorage.setItem("userEmail", data.email); // Store the email in localStorage
           window.location.href = "/Table/Table";
-          localStorage.setItem("user", data.email);
         }
+        
       } else {
         setError("Erro ao obter informações de autenticação.");
         setTimeout(() => setError(""), 2100);

@@ -80,6 +80,8 @@ function TicketTable() {
       const response = await api.post('/tickets', ticketData);
       console.log('Dados enviados com sucesso:', response.data);
       // Restante do seu código ...
+
+      await sendEmail(ticketData);
     } catch (error) {
       console.error('Erro ao enviar dados:', error);
     }
@@ -110,6 +112,16 @@ function TicketTable() {
         sistema: ticket.sistema,
         question: ticket.question
       });
+    }
+  };
+
+  const sendEmail = async (ticketData) => {
+    try {
+      // Envie uma solicitação HTTP POST para o servidor Express.js para enviar a carta convite
+      const response = await api.post('', ticketData);
+      console.log('E-mail enviado com sucesso:', response.data);
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
     }
   };
   
