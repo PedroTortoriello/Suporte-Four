@@ -14,10 +14,10 @@ function TicketTable() {
     sistema: '',
     question: ''
   });
-  const [openTickets, setOpenTickets] = useState([]); // Estado para armazenar os atendimentos em aberto
-  const [openTicketsCount, setOpenTicketsCount] = useState(0); // Estado para contar o número de atendimentos em aberto
-  const [completedTicketsCount, setCompletedTicketsCount] = useState(0); // Estado para contar o número de atendimentos realizados
-  const [editingTicketIndex, setEditingTicketIndex] = useState(null); // Estado para controlar o ticket em edição
+  const [openTickets, setOpenTickets] = useState([]);
+  const [openTicketsCount, setOpenTicketsCount] = useState(0);
+  const [completedTicketsCount, setCompletedTicketsCount] = useState(0);
+  const [editingTicketIndex, setEditingTicketIndex] = useState(null);
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -25,8 +25,8 @@ function TicketTable() {
   
   const handleCloseModal = () => {
     setShowModal(false);
-    setEditingTicketIndex(null); // Limpar o índice do ticket em edição ao fechar o modal
-    setFormData({ // Limpar o formulário ao fechar o modal
+    setEditingTicketIndex(null);
+    setFormData({
       name: '',
       email: '',
       sistema: '',
@@ -42,32 +42,25 @@ function TicketTable() {
     });
   };
 
-  // Função para gerar um código aleatório numérico
   function generateRandomCode() {
-    const min = 1000; // Valor mínimo do código
-    const max = 9999; // Valor máximo do código
-    return Math.floor(Math.random() * (max - min + 1)) + min; // Gera um número aleatório entre min e max
+    const min = 1000;
+    const max = 9999;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // Gerar um código aleatório para o atendimento
     const codigo = generateRandomCode();
-    // Adicionar o código aos dados do atendimento
     const ticketData = { ...formData, codigo };
     if (editingTicketIndex !== null) {
-      // Se estiver editando um ticket, substitua-o no array de tickets abertos
       const updatedOpenTickets = [...openTickets];
       updatedOpenTickets[editingTicketIndex] = ticketData;
       setOpenTickets(updatedOpenTickets);
       setEditingTicketIndex(null);
     } else {
-      // Adicionar os dados do novo atendimento em aberto ao estado
       setOpenTickets([...openTickets, ticketData]);
-      // Incrementar o contador de atendimentos em aberto
       setOpenTicketsCount(openTicketsCount + 1);
     }
-    // Limpar o formulário e fechar o modal
     setFormData({
       name: '',
       email: '',
@@ -79,32 +72,24 @@ function TicketTable() {
     try {
       const response = await api.post('/tickets', ticketData);
       console.log('Dados enviados com sucesso:', response.data);
-      // Restante do seu código ...
-
       await sendEmail(ticketData);
     } catch (error) {
       console.error('Erro ao enviar dados:', error);
     }
-   
   };
 
   const handleCheckboxChange = (index) => {
-    // Remover o atendimento em aberto que foi concluído
     const updatedOpenTickets = [...openTickets];
     updatedOpenTickets.splice(index, 1);
     setOpenTickets(updatedOpenTickets);
-    // Decrementar o contador de atendimentos em aberto
     setOpenTicketsCount(openTicketsCount - 1);
-    // Incrementar o contador de atendimentos realizados
     setCompletedTicketsCount(completedTicketsCount + 1);
   };
 
   const handleEditTicket = (index, event) => {
-    // Verificar se o alvo do evento não é o checkbox
     if (event.target.type !== 'checkbox') {
       setEditingTicketIndex(index);
       setShowModal(true);
-      // Preencher o formulário com os dados do ticket selecionado
       const ticket = openTickets[index];
       setFormData({
         name: ticket.name,
@@ -117,7 +102,6 @@ function TicketTable() {
 
   const sendEmail = async (ticketData) => {
     try {
-      // Envie uma solicitação HTTP POST para o servidor Express.js para enviar a carta convite
       const response = await api.post('', ticketData);
       console.log('E-mail enviado com sucesso:', response.data);
     } catch (error) {
@@ -225,7 +209,12 @@ function TicketTable() {
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-          <div className=" p-8 w-100 rounded-lg absolute right-0 bottom-0 bg-sky-700">
+          <div className="p-8 w-100 rounded-lg absolute right-0 bottom-0 bg-sky-700">
+            <button onClick={handleCloseModal} className="absolute top-2 right-2 text-white hover:text-gray-200">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
             <h2 className="text-[20px] font-bold mb-4 text-black">{editingTicketIndex !== null ? 'Editar Ticket' : 'Envie sua dúvida'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
