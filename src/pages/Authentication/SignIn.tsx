@@ -11,7 +11,7 @@ import Image from './scripts/Image';
 import Four from './four-logo.png';
 import Four2 from './Four-Tecnologia-Logo-footer.png';
 import './StyleLogin.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 type AuthUserFormData = z.infer<typeof AuthUserFormSchema>;
 
@@ -19,7 +19,8 @@ const SignIn: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [loggedInEmail, setLoggedInEmail] = useState("");
-  
+  const navigate = useNavigate(); // Use React Router's useHistory hook
+
   const {
     register,
     handleSubmit,
@@ -47,7 +48,7 @@ const SignIn: React.FC = () => {
         } else {
           setLoggedInEmail(data.email);
           localStorage.setItem("userEmail", data.email); // Store the email in localStorage
-          window.location.href = "/Table/Table";
+          navigate("/Table/Table"); // Navigate to the Table page using useHistory
         }
         
       } else {
@@ -101,13 +102,25 @@ const SignIn: React.FC = () => {
             {error && <p className="error-message">{error}</p>}
 
             <div className="button-container">
-              <Button
-                name='button'
-                id='button'
-                type='submit' 
-                content={loading ? "Aguarde..." : "Login"}
-                disabled={loading}
-              />
+              {loggedInEmail ? ( // Render Link if loggedInEmail exists
+                <Link to="/Table/Table">
+                  <Button
+                    name='button'
+                    id='button'
+                    type='button' // Change type to button
+                    content="Login"
+                    disabled={loading}
+                  />
+                </Link>
+              ) : (
+                <Button
+                  name='button'
+                  id='button'
+                  type='submit' 
+                  content={loading ? "Aguarde..." : "Login"}
+                  disabled={loading}
+                />
+              )}
             </div>
 
             <div className="signup-link">

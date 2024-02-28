@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdMailOutline, MdPersonOutline, MdBusiness } from "react-icons/md";
 import { useForm } from 'react-hook-form';
 import { z } from "zod";
@@ -6,14 +6,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import api from './scripts/api';
 import Button from './scripts/Button';
 import Image from './scripts/Image';
-import { UserFormSchema } from './scripts/schemas';
 import Four2 from './Four-Tecnologia-Logo-footer.png';
 import Title from './scripts/Title';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Importando useNavigate
 import Four from './four-logo.png';
 import DropdownUser from '../../components/Header/DropdownUser';
 import { ResponseMessage } from './scripts/ResponseMessage';
 import './StyleSignUp.css';
+
+const UserFormSchema = z.object({
+  name: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres" }),
+  empresa: z.string().min(3, { message: "O nome da empresa deve ter pelo menos 3 caracteres" }),
+  email: z.string().email({ message: "O email é inválido" }),
+  password: z.string().min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
+  confirmpassword: z.string().refine(value => value === (document.getElementById("password") as HTMLInputElement).value, { message: "As senhas não coincidem" })
+});
+
 type SignUpFormData = z.infer<typeof UserFormSchema>;
 
 const SignUp: React.FC = () => {
@@ -22,10 +30,21 @@ const SignUp: React.FC = () => {
     message: "",
     type: "",
   });
+  const [userName, setUserName] = useState<string>("");
+  const [userEmpresa, setUserEmpresa] = useState<string>("");
 
-  // States para armazenar o nome e a empresa
-  const [userName, setUserName] = useState("");
-  const [userEmpresa, setUserEmpresa] = useState("");
+  const navigate = useNavigate(); // Inicializando useNavigate
+
+  useEffect(() => {
+    const storedUserName = localStorage.getItem("userName");
+    const storedUserEmpresa = localStorage.getItem("userEmpresa");
+    if (storedUserName) {
+      setUserName(storedUserName);
+    }
+    if (storedUserEmpresa) {
+      setUserEmpresa(storedUserEmpresa);
+    }
+  }, []);
 
   const {
     register,
@@ -35,52 +54,51 @@ const SignUp: React.FC = () => {
     resolver: zodResolver(UserFormSchema),
   });
 
-  async function handleSignUp(data: SignUpFormData) {
+  const onSubmit = async (data: SignUpFormData) => {
     setLoading(true);
-
     try {
-      const { confirmpassword, status, ...requestData } = data;
       const headers = {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       };
-      const requestDataUser = { ...requestData, status: true };
+      
+      const requestDataUser = { 
+        ...data, 
+        status: true,
+      };
 
-      await api.post("/novoUsuario", requestDataUser, headers).then((response) => {
-        if (response.data.result === "Usuário já existe na base.") {
-          setResponse({ message: response.data.result, type: "error" });
-          setTimeout(() => setResponse({ message: "", type: "" }), 2100);
-        } else {
-          // Armazena o nome e a empresa
-          setUserName(data.name);
-          setUserEmpresa(data.empresa);
+      const response = await api.post("/novoUsuario", requestDataUser, headers);
 
-          localStorage.setItem("userName", data.name);
-          localStorage.setItem("userEmpresa", data.empresa);
-          window.location.href = "/Table/Table";
-          localStorage.setItem("user", data.email);
-        }
-      });
+      if (response.data.result === "Usuário já existe na base.") {
+        setResponse({ message: response.data.result, type: "error" });
+        setTimeout(() => setResponse({ message: "", type: "" }), 2100);
+      } else {
+        localStorage.setItem("userName", data.name);
+        localStorage.setItem("userEmpresa", data.empresa);
+        setUserName(data.name);
+        setUserEmpresa(data.empresa);
+        navigate("/Table/Table"); // Navegando para /Table/Table
+        localStorage.setItem("user", data.email);
+      }
     } catch (error) {
-      console.error('Erro ao cadastrar usuário:', error.message);
+      console.error('Erro ao cadastrar usuário:', (error as Error).message);
     } finally {
       setLoading(false);
     }
-  }
-  
-  
+  };
+
   return (
     <div className="login-page ">
       <div className="flex justify-center items-center">
         <div className='boxLeft'>
-          <form onSubmit={handleSubmit(handleSignUp)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="boxRight imgfour md:hidden w-50 h-10 items-center justify-center">
               <Image imageLink={Four2} />
             </div>
             <div className="title hidden md:block" >
-            <Title title="Suporte Four" />
+              <Title title="Suporte Four" />
             </div>
 
             <div className="input-box">
@@ -93,6 +111,7 @@ const SignUp: React.FC = () => {
                 type="text"
                 placeholder="Digite seu nome"
               />
+              {errors.name && <p className="error-message">{errors.name.message}</p>}
             </div>
 
             <div className="input-box">
@@ -105,6 +124,7 @@ const SignUp: React.FC = () => {
                 type="text"
                 placeholder="Digite o nome da empresa"
               />
+              {errors.empresa && <p className="error-message">{errors.empresa.message}</p>}
             </div>
 
             <div className="input-box">
@@ -117,6 +137,7 @@ const SignUp: React.FC = () => {
                 type="email"
                 placeholder="Digite seu email"
               />
+              {errors.email && <p className="error-message">{errors.email.message}</p>}
             </div>
 
             <div className="input-box">
@@ -129,6 +150,7 @@ const SignUp: React.FC = () => {
                 type="password"
                 placeholder="Digite sua senha"
               />
+              {errors.password && <p className="error-message">{errors.password.message}</p>}
             </div>
 
             <div className="input-box">
@@ -141,11 +163,8 @@ const SignUp: React.FC = () => {
                 type="password"
                 placeholder="Confirme sua senha"
               />
+              {errors.confirmpassword && <p className="error-message">{errors.confirmpassword.message}</p>}
             </div>
-
-            {errors.email && <p className="error-message">{errors.email.message}</p>}
-            {errors.password && <p className="error-message">{errors.password.message}</p>}
-            {errors.confirmpassword && <p className="error-message">{errors.confirmpassword.message}</p>}
 
             {response.message !== "" && (
               <ResponseMessage message={response.message} type={response.type} />

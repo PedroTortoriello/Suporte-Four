@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-
-
 const DropdownUser = ({ userName, userEmpresa }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -44,9 +42,9 @@ const DropdownUser = ({ userName, userEmpresa }) => {
         to="#"
       >
         <span className="hidden text-right lg:block">
-        <span className="block text-sm font-medium text-black dark:text-white" style={{ color: 'black' }}>
-          {userName}
-        </span>
+          <span className="block text-sm font-medium text-black dark:text-white" style={{ color: 'black' }}>
+            {userName}
+          </span>
           <span className="block text-xs">{userEmpresa}</span>
         </span>
 
@@ -108,7 +106,7 @@ const DropdownUser = ({ userName, userEmpresa }) => {
           </li>
         
         </ul>
-        <Link to="/signin">
+        <Link to="/">
           <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
             <svg
               className="fill-current"
