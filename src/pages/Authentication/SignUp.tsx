@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import Four from './four-logo.png';
 import DropdownUser from '../../components/Header/DropdownUser';
 import { ResponseMessage } from './scripts/ResponseMessage';
-
+import './StyleSignUp.css';
 type SignUpFormData = z.infer<typeof UserFormSchema>;
 
 const SignUp: React.FC = () => {
@@ -72,14 +72,16 @@ const SignUp: React.FC = () => {
   
   
   return (
-    <div className="signup-page login-page">
+    <div className="login-page ">
       <div className="flex justify-center items-center">
         <div className='boxLeft'>
           <form onSubmit={handleSubmit(handleSignUp)}>
-            <div className="boxRight boxRight md:hidden w-50 h-10 items-center justify-center ">
-              <Image imageLink={Four2}  />
+            <div className="boxRight imgfour md:hidden w-50 h-10 items-center justify-center">
+              <Image imageLink={Four2} />
             </div>
-            <Title title="Suporte  Four" />
+            <div className="title hidden md:block" >
+            <Title title="Suporte Four" />
+            </div>
 
             <div className="input-box">
               <label htmlFor="name">Nome<i>*</i></label>

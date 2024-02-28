@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400&display=swap');
 
-.login-page {
+.signup-page {
     * {
         margin: 0;
         padding: 0;
@@ -10,15 +10,18 @@
     }
 }
 
+body {
+    overflow-y: hidden;
+}
 
-.login-page {
+.signup-page {
     *::selection{
     color: #177357;
     background-color: rgb(255, 249, 202);
     }
 }
 
-.login-page .material-icons{
+.signup-page .material-icons{
     position: absolute;
     margin-top: 1.3em;
     margin-left: 0.3em;
@@ -37,7 +40,7 @@
     font-size: 20pt;
 }
     
-.login-page body{
+.signup-page{
     width: 100%;
     height: 100%;
     display: flex;
@@ -47,12 +50,12 @@
 }
 
 
-.login-page a{
+.signup-page a{
     text-decoration: none;
     top: 0;
 }
 
-.login-page a:visited{
+.signup-page a:visited{
     color: #177357;
 }
 
@@ -62,7 +65,7 @@
     margin-top: 1%;
 }
 
-.login-page i{
+.signup-page i{
     color: #177357;
 }
 
@@ -94,28 +97,24 @@
 }
 
 
-.login-page .title{
+.signup-page .title{
     -webkit-animation: fadeInLeft 1.2s both;
     -o-animation: fadeInLeft 1.2s both;
     -moz-animation: fadeInLeft 1.2s both;
     animation: fadeInLeft 1.2s both;
     width: 21vw;
     text-align: center;
-    font-size: 20px;
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-.login-page .sub{
-    font-size: 11pt;
-    margin-top: 8px;
 }
 
 .title h2{
     color: #177357;
     font-weight: 900;
+    font-size: 20px;
 }
 
+.signup-link{
+    margin-top:10px;
+}
 
 .boxRight{
     position: relative;
@@ -124,7 +123,7 @@
 
 }
 
-.login-page .boxRight img{
+.signup-page .boxRight img{
 
     -webkit-animation: fadeInTop 1s both;
     -o-animation: fadeInTop 1s both;
@@ -155,24 +154,24 @@
     padding-right: 40px;
 }
 
-.login-page .input-box input::placeholder{
+.signup-page .input-box input::placeholder{
     font-size: 10pt;
 }
 
 
-.login-page .input-box input:hover{
+.signup-page .input-box input:hover{
     outline: solid #177357 1px;
 }
 
-.login-page .input-box input:focus{
+.signup-page .input-box input:focus{
     outline: solid #177357 2px;
 }
 
-.login-page label{
+.signup-page label{
     margin-bottom: 0.2em;
 }
 
-.login-page .button-box{
+.signup-page .button-box{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -182,7 +181,7 @@
 }
 
 
-.login-page .button{
+.signup-page .button{
     width: 100%;
     height: 2.5em;
     margin-top: 10%;
@@ -195,7 +194,7 @@
     font-weight: bolder;
 }
 
-.login-page .button:hover{
+.signup-page .button:hover{
     border: solid #ffc124 2px;
     background-color: #2b2a2a;
     color: #ffc124;
@@ -203,7 +202,7 @@
     
 }
 
-.login-page .button-box a p{
+.signup-page .button-box a p{
     font-size: 11pt;
     margin-top: 7px;
     color: #FFF7DC;
@@ -304,7 +303,7 @@
 }
 
 @media only screen and (max-width: 768px) {
-    .login-page {
+    .signup-page {
         flex-direction: column; /* Coloca os elementos um embaixo do outro */
     }
     .boxLeft, .boxRight {
@@ -331,5 +330,35 @@
     }
     .button-box {
         width: 90%; /* Reduz um pouco mais a largura da caixa de botões */
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .boxLeft {
+        width: 100%;
+        height: auto;
+    }
+    .boxLeft form {
+        width: 90%;
+    }
+    .input-box input {
+        width: 100%;
+    }
+    .button-box {
+        width: 100%;
+    }
+
+    .imgfour{
+        height: 55px;
+        width: 215px;
+    }
+}
+
+@media only screen and (max-width: 576px) {
+    .input-box input {
+        width: 100%;
+    }
+    .button-box {
+        width: 100%;
     }
 }

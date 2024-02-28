@@ -34,7 +34,7 @@ function TicketTable() {
     });
   };
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
     const { name, value } = event.target;
     setFormData({
       ...formData,
@@ -47,36 +47,44 @@ function TicketTable() {
     const max = 9999;
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+  
+  interface TicketData {
+    name: string;
+    email: string;
+    sistema: string;
+    question: string;
+    // outras propriedades, se houver
+  }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
     const codigo = generateRandomCode();
     const ticketData = { ...formData, codigo };
-    if (editingTicketIndex !== null) {
-      const updatedOpenTickets = [...openTickets];
-      updatedOpenTickets[editingTicketIndex] = ticketData;
-      setOpenTickets(updatedOpenTickets);
-      setEditingTicketIndex(null);
-    } else {
-      setOpenTickets([...openTickets, ticketData]);
-      setOpenTicketsCount(openTicketsCount + 1);
+
+    try {
+        // Fazer uma requisição POST para a rota '/tickets' no backend
+        const response = await api.post<TicketData>('/ticket', ticketData); // Especificando o tipo de resposta como TicketData
+
+        // Atualizar o estado do componente com os tickets após a criação bem sucedida
+        setOpenTickets([...openTickets, response.data as TicketData]);
+
+        setOpenTicketsCount(openTicketsCount + 1);
+    } catch (error) {
+        console.error('Erro ao enviar ticket:', error);
     }
+
+    // Limpar o formulário e fechar o modal
     setFormData({
-      name: '',
-      email: '',
-      sistema: '',
-      question: ''
+        name: '',
+        email: '',
+        sistema: '',
+        question: ''
     });
     setShowModal(false);
-  
-    try {
-      const response = await api.post('/tickets', ticketData);
-      console.log('Dados enviados com sucesso:', response.data);
-      await sendEmail(ticketData);
-    } catch (error) {
-      console.error('Erro ao enviar dados:', error);
-    }
   };
+
+
+
 
   const handleCheckboxChange = (index) => {
     const updatedOpenTickets = [...openTickets];
@@ -100,14 +108,6 @@ function TicketTable() {
     }
   };
 
-  const sendEmail = async (ticketData) => {
-    try {
-      const response = await api.post('', ticketData);
-      console.log('E-mail enviado com sucesso:', response.data);
-    } catch (error) {
-      console.error('Erro ao enviar e-mail:', error);
-    }
-  };
   
   return (
     <DefaultLayout>
