@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import DefaultLayout from '../../layout/DefaultLayout';
 import CardDataStats from '../../components/CardDataStats';
 import { FaCheck, FaEdit, FaEnvelopeOpen } from 'react-icons/fa';
@@ -14,10 +14,10 @@ function TicketTable() {
     sistema: '',
     question: ''
   });
-  const [openTickets, setOpenTickets] = useState([]);
+  const [openTickets, setOpenTickets] = useState<any[]>([]);
   const [openTicketsCount, setOpenTicketsCount] = useState(0);
   const [completedTicketsCount, setCompletedTicketsCount] = useState(0);
-  const [editingTicketIndex, setEditingTicketIndex] = useState(null);
+  const [editingTicketIndex, setEditingTicketIndex] = useState<number | null>(null);
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -34,7 +34,7 @@ function TicketTable() {
     });
   };
 
-  const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
     setFormData({
       ...formData,
@@ -47,46 +47,34 @@ function TicketTable() {
     const max = 9999;
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-  
-  interface TicketData {
-    name: string;
-    email: string;
-    sistema: string;
-    question: string;
-    // outras propriedades, se houver
-  }
 
-  const handleSubmit = async (event: { preventDefault: () => void; }) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const codigo = generateRandomCode();
     const ticketData = { ...formData, codigo };
-
+  
     try {
-        // Fazer uma requisição POST para a rota '/tickets' no backend
-        const response = await api.post<TicketData>('/ticket', ticketData); // Especificando o tipo de resposta como TicketData
-
-        // Atualizar o estado do componente com os tickets após a criação bem sucedida
-        setOpenTickets([...openTickets, response.data as TicketData]);
-
-        setOpenTicketsCount(openTicketsCount + 1);
-    } catch (error) {
-        console.error('Erro ao enviar ticket:', error);
-    }
-
-    // Limpar o formulário e fechar o modal
-    setFormData({
+      // Fazer uma requisição POST para a rota '/ticket' no backend
+      await api.post('/ticket', ticketData);
+  
+      // Atualizar o estado do componente com os tickets após a criação bem sucedida
+      setOpenTickets([...openTickets, ticketData]); // Adiciona o novo ticket à lista de tickets
+  
+      // Limpar o formulário e fechar o modal
+      setFormData({
         name: '',
         email: '',
         sistema: '',
         question: ''
-    });
-    setShowModal(false);
+      });
+      setShowModal(false);
+    } catch (error) {
+      console.error('Erro ao enviar ticket:', error);
+    }
   };
 
 
-
-
-  const handleCheckboxChange = (index) => {
+  const handleCheckboxChange = (index: number) => {
     const updatedOpenTickets = [...openTickets];
     updatedOpenTickets.splice(index, 1);
     setOpenTickets(updatedOpenTickets);
@@ -94,8 +82,8 @@ function TicketTable() {
     setCompletedTicketsCount(completedTicketsCount + 1);
   };
 
-  const handleEditTicket = (index, event) => {
-    if (event.target.type !== 'checkbox') {
+  const handleEditTicket = (index: number, event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
+    if ((event.target as HTMLInputElement).type !== 'checkbox') {
       setEditingTicketIndex(index);
       setShowModal(true);
       const ticket = openTickets[index];
