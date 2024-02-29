@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom';
 import DropdownUser from './DropdownUser';
-import Four from '../Sidebar/four-logo.png'
+
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;

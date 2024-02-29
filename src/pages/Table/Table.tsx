@@ -6,11 +6,10 @@ import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { PlusCircle } from 'lucide-react';
 import api from '../Authentication/scripts/api';
 
-function TicketTable() {
+function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    email: loggedInEmail, // Preenche automaticamente com o e-mail logado
     sistema: '',
     question: ''
   });
@@ -27,8 +26,7 @@ function TicketTable() {
     setShowModal(false);
     setEditingTicketIndex(null);
     setFormData({
-      name: '',
-      email: '',
+      email: loggedInEmail, // Mantém o e-mail logado
       sistema: '',
       question: ''
     });
@@ -62,8 +60,7 @@ function TicketTable() {
   
       // Limpar o formulário e fechar o modal
       setFormData({
-        name: '',
-        email: '',
+        email: loggedInEmail, // Mantém o e-mail logado
         sistema: '',
         question: ''
       });
@@ -88,7 +85,6 @@ function TicketTable() {
       setShowModal(true);
       const ticket = openTickets[index];
       setFormData({
-        name: ticket.name,
         email: ticket.email,
         sistema: ticket.sistema,
         question: ticket.question
@@ -119,12 +115,7 @@ function TicketTable() {
               </th>
               <th className="py-6 px-6 whitespace-nowrap bg-sky-700">
                 <div className="flex flex-row items-center justify-center">
-                  <span className="text-sm font-semibold text-black">Nome</span>
-                </div>
-              </th>
-              <th className="py-6 px-6 whitespace-nowrap bg-sky-700">
-                <div className="flex flex-row items-center justify-center">
-                  <span className="text-sm font-semibold text-black">Empresa</span>
+                  <span className="text-sm font-semibold text-black">E-mail</span>
                 </div>
               </th>
               <th className="py-6 px-6 whitespace-nowrap bg-sky-700">
@@ -150,11 +141,6 @@ function TicketTable() {
                 <td className="cursor-pointer whitespace-nowrap text-center ">
                   <div className="py-2">
                     <span className="px-1 py-1">{ticket.codigo}</span>
-                  </div>
-                </td>
-                <td className="cursor-pointer whitespace-nowrap text-center ">
-                  <div className="py-2">
-                    <span className="px-1 py-1">{ticket.name}</span>
                   </div>
                 </td>
                 <td className="cursor-pointer whitespace-nowrap text-center">
@@ -206,12 +192,8 @@ function TicketTable() {
             <h2 className="text-[20px] font-bold mb-4 text-black">{editingTicketIndex !== null ? 'Editar Ticket' : 'Envie sua dúvida'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-15 font-bold text-black">Nome</label>
-                <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} className="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-15 font-bold text-black">Empresa</label>
-                <input type="text" id="email" name="email" value={formData.email} onChange={handleInputChange} className="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+                <label htmlFor="email" className="block text-15 font-bold text-black">E-mail</label> {/* Alterado de name para email */}
+                <input type="text" id="email" name="email" value={loggedInEmail} onChange={handleInputChange} className="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" readOnly />
               </div>
               <div className="mb-4">
                 <label htmlFor="sistema" className="block text-15 font-bold text-black">Sistema</label>

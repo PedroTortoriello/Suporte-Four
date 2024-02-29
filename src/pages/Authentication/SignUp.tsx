@@ -8,7 +8,7 @@ import Button from './scripts/Button';
 import Image from './scripts/Image';
 import Four2 from './Four-Tecnologia-Logo-footer.png';
 import Title from './scripts/Title';
-import { Link, useNavigate } from 'react-router-dom'; // Importando useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import Four from './four-logo.png';
 import DropdownUser from '../../components/Header/DropdownUser';
 import { ResponseMessage } from './scripts/ResponseMessage';
@@ -30,57 +30,44 @@ const SignUp: React.FC = () => {
     message: "",
     type: "",
   });
-  const [userName, setUserName] = useState<string>("");
-  const [userEmpresa, setUserEmpresa] = useState<string>("");
+  const [userName, setUserName] = useState("");
+  const [userEmpresa, setUserEmpresa] = useState("");
+  const [userEmail, setUserEmail] = useState("");
 
-  const navigate = useNavigate(); // Inicializando useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUserName = localStorage.getItem("userName");
-    const storedUserEmpresa = localStorage.getItem("userEmpresa");
-    if (storedUserName) {
-      setUserName(storedUserName);
-    }
-    if (storedUserEmpresa) {
-      setUserEmpresa(storedUserEmpresa);
+    const email = localStorage.getItem("userEmail");
+    const name = localStorage.getItem("userName");
+    const empresa = localStorage.getItem("userEmpresa");
+    
+    if (email && name && empresa) {
+      setUserEmail(email);
+      setUserName(name);
+      setUserEmpresa(empresa);
     }
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignUpFormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<SignUpFormData>({
     resolver: zodResolver(UserFormSchema),
   });
 
   const onSubmit = async (data: SignUpFormData) => {
     setLoading(true);
     try {
-      const headers = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      };
-      
-      const requestDataUser = { 
-        ...data, 
-        status: true,
-      };
-
-      const response = await api.post("/novoUsuario", requestDataUser, headers);
-
+      const requestDataUser = { ...data, status: true };
+  
+      const response = await api.post("/novoUsuario", requestDataUser);
+  
       if (response.data.result === "Usuário já existe na base.") {
         setResponse({ message: response.data.result, type: "error" });
         setTimeout(() => setResponse({ message: "", type: "" }), 2100);
       } else {
+        localStorage.setItem("userEmail", data.email);
         localStorage.setItem("userName", data.name);
         localStorage.setItem("userEmpresa", data.empresa);
-        setUserName(data.name);
-        setUserEmpresa(data.empresa);
-        navigate("/Table/Table"); // Navegando para /Table/Table
-        localStorage.setItem("user", data.email);
+  
+        navigate("/Table/Table");
       }
     } catch (error) {
       console.error('Erro ao cadastrar usuário:', (error as Error).message);

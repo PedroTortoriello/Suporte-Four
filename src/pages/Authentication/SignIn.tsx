@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdMailOutline, MdPersonOutline } from "react-icons/md";
 import { useForm } from 'react-hook-form';
 import { AuthUserFormSchema } from './scripts/schemas';
@@ -25,9 +25,15 @@ const SignIn: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue, // Add setValue function from useForm
   } = useForm<AuthUserFormData>({
     resolver: zodResolver(AuthUserFormSchema),
   });
+
+  useEffect(() => {
+    // Set value for email field when loggedInEmail changes
+    setValue('email', loggedInEmail);
+  }, [loggedInEmail, setValue]);
 
   async function AuthUser(data: AuthUserFormData) {
     setLoading(true);

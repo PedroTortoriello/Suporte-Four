@@ -10,10 +10,19 @@ import SignUp from './pages/Authentication/SignUp';
 
 function App() {
   const { pathname } = useLocation();
+  const [userEmail, setUserEmail] = useState<string>("");
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  useEffect(() => {
+    // Recuperar o e-mail do usuário do localStorage após o login bem-sucedido
+    const storedEmail = localStorage.getItem('userEmail');
+    if (storedEmail) {
+      setUserEmail(storedEmail);
+    }
+  }, []);
 
   return (
     <Routes>
@@ -32,7 +41,8 @@ function App() {
         element={
           <>
             <PageTitle title="Suporte | Four" />
-            <TicketTable />
+            {/* Passar o e-mail do usuário para o componente TicketTable */}
+            <TicketTable loggedInEmail={userEmail} />
           </>
         }
       />
@@ -41,15 +51,6 @@ function App() {
         path="/profile"
         element={
           <>
-            <Profile />
-          </>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <>
-
             <Profile />
           </>
         }
@@ -76,16 +77,6 @@ function App() {
       />
     </Routes>
   );
-}
-
-function TicketTableWithLoader() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
-
-  return loading ? <Loader /> : <TicketTable />;
 }
 
 export default App;
