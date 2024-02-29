@@ -18,6 +18,13 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
   const [completedTicketsCount, setCompletedTicketsCount] = useState(0);
   const [editingTicketIndex, setEditingTicketIndex] = useState<number | null>(null);
 
+  const headers = {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  };
+
   const handleOpenModal = () => {
     setShowModal(true);
   };
@@ -53,7 +60,7 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
   
     try {
       // Fazer uma requisição POST para a rota '/ticket' no backend
-      await api.post('/ticket', ticketData);
+      await api.post('/ticket', ticketData, headers);
   
       // Atualizar o estado do componente com os tickets após a criação bem sucedida
       setOpenTickets([...openTickets, ticketData]); // Adiciona o novo ticket à lista de tickets
