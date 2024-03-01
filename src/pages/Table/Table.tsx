@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import DefaultLayout from '../../layout/DefaultLayout';
 import CardDataStats from '../../components/CardDataStats';
 import { FaCheck, FaEdit, FaEnvelopeOpen } from 'react-icons/fa';
@@ -9,7 +9,7 @@ import api from '../Authentication/scripts/api';
 function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    email: loggedInEmail, // Preenche automaticamente com o e-mail logado
+    email: loggedInEmail,
     sistema: '',
     question: ''
   });
@@ -24,6 +24,22 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   };
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const response = await api.get('/ticket', headers);
+        setOpenTickets(response.data); // Supondo que a resposta da API seja um array de tickets
+        setOpenTicketsCount(response.data.length);
+        // Você pode iterar sobre os tickets para contar quantos estão completos
+        const completedCount = response.data.filter((ticket: any) => ticket.completed).length;
+        setCompletedTicketsCount(completedCount);
+      } catch (error) {
+        console.error('Erro ao carregar tickets:', error);
+      }
+    };
+    fetchTickets();
+  }, []); // Passando um array vazio como segundo argumento para garantir que o efeito seja executado apenas uma vez, ao montar o componente
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -61,7 +77,7 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     try {
       // Fazer uma requisição POST para a rota '/ticket' no backend
       await api.post('/ticket', ticketData, headers);
-  
+
       // Atualizar o estado do componente com os tickets após a criação bem sucedida
       setOpenTickets([...openTickets, ticketData]); // Adiciona o novo ticket à lista de tickets
   
@@ -76,7 +92,6 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
       console.error('Erro ao enviar ticket:', error);
     }
   };
-
 
   const handleCheckboxChange = (index: number) => {
     const updatedOpenTickets = [...openTickets];
@@ -99,7 +114,6 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     }
   };
 
-  
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Atendimentos" />
