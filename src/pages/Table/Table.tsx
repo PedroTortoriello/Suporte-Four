@@ -86,7 +86,7 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     try {
       await api.post('/ticket', ticketData, headers);
 
-      // await api.post('/enviarEmail', ticketData, headers);
+      await api.post('/enviarEmail', ticketData, headers);
 
       setOpenTickets([...openTickets, ticketData]);
       setOpenTicketsCount(openTicketsCount + 1);
@@ -102,25 +102,27 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     }
   };
 
-  const handleCheckboxChange = async (index: number, ticketId: string) => {
+  const handleCheckboxChange = async (index: number) => {
     const ticketToMove = openTickets[index];
     
     try {
-      // Move o ticket para finalizados
+      // Movendo o ticket para a lista de finalizados com o mesmo código do ticket original
       await api.post('/finalizados', ticketToMove, headers);
-  
-      // Exclui o ticket da lista de tickets em aberto
+      
+      // Removendo o ticket da lista de tickets em aberto
       const updatedOpenTickets = openTickets.filter((_ticket, idx) => idx !== index);
       setOpenTickets(updatedOpenTickets);
       setOpenTicketsCount(openTicketsCount - 1);
   
-      // Salva a lista atualizada de tickets em aberto no armazenamento local
-      localStorage.setItem('openTickets', JSON.stringify(updatedOpenTickets));
+      // Atualizando o contador de tickets finalizados
+      setCompletedTicketsCount(completedTicketsCount + 1);
     } catch (error) {
       console.error('Erro ao mover ticket:', error);
-      // Lide com o erro de acordo, por exemplo, mostrando uma mensagem para o usuário
+      // Lidar com o erro, por exemplo, exibindo uma mensagem para o usuário
     }
   };
+  
+  
 
   const handleEditTicket = (index: number, event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
     if ((event.target as HTMLInputElement).type !== 'checkbox') {
