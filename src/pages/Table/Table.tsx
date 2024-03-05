@@ -77,7 +77,6 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     const max = 9999;
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const codigo = generateRandomCode();
@@ -87,8 +86,8 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
       await api.post('/ticket', ticketData, headers);
       
       await api.post('/enviarEmail', ticketData, headers);
-
-      setOpenTickets([...openTickets, ticketData]);
+  
+      setOpenTickets([...openTickets, ticketData]); // Here's the issue
       setOpenTicketsCount(openTicketsCount + 1);
       setFormData({
         email: loggedInEmail,
