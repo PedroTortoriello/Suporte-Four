@@ -85,7 +85,7 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
   
     try {
       await api.post('/ticket', ticketData, headers);
-
+      
       await api.post('/enviarEmail', ticketData, headers);
 
       setOpenTickets([...openTickets, ticketData]);
