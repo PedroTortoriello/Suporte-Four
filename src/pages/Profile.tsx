@@ -2,28 +2,39 @@ import React, { useEffect, useState } from 'react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import CoverOne from '../images/Four/Fundo-Video-Chamada.jpg';
- 
+import api from './Authentication/scripts/api';
+
 const Profile = () => {
   const [userEmail, setUserEmail] = useState("");
   const [userEmpresa, setUserEmpresa] = useState("");
-  const [userName, setUserName] = useState("");
- 
+
   useEffect(() => {
-    const email = localStorage.getItem("userEmail");
-    const name = localStorage.getItem("userName");
-    const empresa = localStorage.getItem("userEmpresa");
-   
-    if (email && name && empresa) {
-      setUserEmail(email);
-      setUserName(name);
-      setUserEmpresa(empresa);
-    }
+    const fetchData = async () => {
+      try {
+        const email = localStorage.getItem("userEmail");
+        const name = localStorage.getItem("userName");
+
+        if (email && name) {
+          setUserEmail(email);
+          setUserName(name);
+
+          // Consulta ao banco de dados para obter os dados da empresa
+          const response = await api.get(`/autenticacao?email=${email}`);
+          const usuario = response.data;
+          setUserEmpresa(usuario.empresa);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar dados da empresa:', error);
+      }
+    };
+
+    fetchData();
   }, []);
- 
+
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Perfil" />
- 
+
       <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark flex flex-col md:flex-row">
         <div className="relative z-20 flex-1 h-60 md:h-80">
           <img
@@ -40,12 +51,9 @@ const Profile = () => {
             <p className="font-medium">Empresa: {userEmpresa}</p>
           </div>
         </div>
- 
       </div>
- 
     </DefaultLayout>
   );
 };
- 
+
 export default Profile;
- 

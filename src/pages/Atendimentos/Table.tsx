@@ -1,12 +1,11 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import DefaultLayout from '../../layout/DefaultLayout';
-import CardDataStats from '../../components/CardDataStats';
-import { FaCheck, FaEdit, FaEnvelopeOpen } from 'react-icons/fa';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { PlusCircle } from 'lucide-react';
 import api from '../Authentication/scripts/api';
+import { FaEdit } from 'react-icons/fa';
 
-function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
+function Realizados({ loggedInEmail }: { loggedInEmail: string }) {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     email: loggedInEmail,
@@ -14,7 +13,6 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     question: ''
   });
   const [openTickets, setOpenTickets] = useState<any[]>([]);
-  const [completedTickets, setCompletedTickets] = useState<any[]>([]);
   const [openTicketsCount, setOpenTicketsCount] = useState(0);
   const [completedTicketsCount, setCompletedTicketsCount] = useState(0);
   const [editingTicketIndex, setEditingTicketIndex] = useState<number | null>(null);
@@ -29,26 +27,18 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        // Verifica se há tickets salvos no armazenamento local
-        const storedOpenTickets = localStorage.getItem('openTickets');
-        if (storedOpenTickets) {
-          setOpenTickets(JSON.parse(storedOpenTickets));
-          setOpenTicketsCount(JSON.parse(storedOpenTickets).length);
-        } else {
-          const response = await api.get('/ticket', headers);
-          const tickets = response.data;
-          setOpenTickets(tickets.filter((ticket: any) => !ticket.completed));
-          setOpenTicketsCount(tickets.filter((ticket: any) => !ticket.completed).length);
-        }
         const response = await api.get('/finalizados', headers);
-        setCompletedTickets(response.data);
-        setCompletedTicketsCount(response.data.length);
+        setOpenTickets(response.data); // Supondo que a resposta da API seja um array de tickets
+        setOpenTicketsCount(response.data.length);
+        // Você pode iterar sobre os tickets para contar quantos estão completos
+        const completedCount = response.data.filter((ticket: any) => ticket.completed).length;
+        setCompletedTicketsCount(completedCount);
       } catch (error) {
         console.error('Erro ao carregar tickets:', error);
       }
     };
     fetchTickets();
-  }, []);
+  }, []); // Passando um array vazio como segundo argumento para garantir que o efeito seja executado apenas uma vez, ao montar o componente
 
   const handleOpenModal = () => {
     setShowModal(true);
@@ -58,7 +48,7 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     setShowModal(false);
     setEditingTicketIndex(null);
     setFormData({
-      email: loggedInEmail,
+      email: loggedInEmail, // Mantém o e-mail logado
       sistema: '',
       question: ''
     });
@@ -84,42 +74,32 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
     const ticketData = { ...formData, codigo };
   
     try {
+      // Fazer uma requisição POST para a rota '/ticket' no backend
       await api.post('/ticket', ticketData, headers);
-
-      // await api.post('/enviarEmail', ticketData, headers);
-
-      setOpenTickets([...openTickets, ticketData]);
-      setOpenTicketsCount(openTicketsCount + 1);
+  
+      setOpenTickets([...openTickets, ticketData]); // Adiciona o novo ticket à lista de tickets
+      
+  
+      // Limpar o formulário e fechar o modal
       setFormData({
-        email: loggedInEmail,
+        email: loggedInEmail, // Mantém o e-mail logado
         sistema: '',
         question: ''
       });
       setShowModal(false);
     } catch (error) {
       console.error('Erro ao enviar ticket:', error);
+      // Exiba o erro para depuração
       alert('Ocorreu um erro ao enviar o e-mail. Verifique o console para mais detalhes.');
     }
   };
 
-  const handleCheckboxChange = async (index: number, ticketId: string) => {
-    const ticketToMove = openTickets[index];
-    
-    try {
-      // Move o ticket para finalizados
-      await api.post('/finalizados', ticketToMove, headers);
-  
-      // Exclui o ticket da lista de tickets em aberto
-      const updatedOpenTickets = openTickets.filter((_ticket, idx) => idx !== index);
-      setOpenTickets(updatedOpenTickets);
-      setOpenTicketsCount(openTicketsCount - 1);
-  
-      // Salva a lista atualizada de tickets em aberto no armazenamento local
-      localStorage.setItem('openTickets', JSON.stringify(updatedOpenTickets));
-    } catch (error) {
-      console.error('Erro ao mover ticket:', error);
-      // Lide com o erro de acordo, por exemplo, mostrando uma mensagem para o usuário
-    }
+  const handleCheckboxChange = (index: number) => {
+    const updatedOpenTickets = [...openTickets];
+    updatedOpenTickets.splice(index, 1);
+    setOpenTickets(updatedOpenTickets);
+    setOpenTicketsCount(openTicketsCount - 1);
+    setCompletedTicketsCount(completedTicketsCount + 1);
   };
 
   const handleEditTicket = (index: number, event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
@@ -137,14 +117,8 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Atendimentos" />
+      <Breadcrumb pageName="Realizados" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 font-900">
-        <CardDataStats title="Atendimentos em Aberto" total={openTicketsCount}>
-          <FaEnvelopeOpen />
-        </CardDataStats>
-        <CardDataStats title="Atendimentos Realizados" total={completedTicketsCount}>
-          <FaCheck />
-        </CardDataStats>
       </div>
       <div className="mt-20 relative w-full overflow-x-auto overscroll-y-auto border-1 shadow-md sm:rounded-xl" style={{ maxHeight: 'calc(-100px + 100vh)' }}>
         <table className="table w-full py-5 text-xs">
@@ -202,7 +176,7 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
                       id={`ticket-${index}`} 
                       name={`ticket-${index}`} 
                       value="Concluído" 
-                      onChange={() => handleCheckboxChange(index, ticket._id)} 
+                      onChange={() => handleCheckboxChange(index)} 
                     />
                   </div>
                 </td>
@@ -234,7 +208,7 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
             <h2 className="text-[20px] font-bold mb-4 text-black">{editingTicketIndex !== null ? 'Editar Ticket' : 'Envie sua dúvida'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label htmlFor="email" className="block text-15 font-bold text-black">E-mail</label>
+                <label htmlFor="email" className="block text-15 font-bold text-black">E-mail</label> {/* Alterado de name para email */}
                 <input type="text" id="email" name="email" value={loggedInEmail} onChange={handleInputChange} className="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" readOnly />
               </div>
               <div className="mb-4">
@@ -261,8 +235,9 @@ function TicketTable({ loggedInEmail }: { loggedInEmail: string }) {
           </div>
         </div>
       )}
+
     </DefaultLayout>
   );
 }
 
-export default TicketTable;
+export default Realizados;

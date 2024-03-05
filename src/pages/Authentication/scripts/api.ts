@@ -1,5 +1,5 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "https://rsvpbackenddev.fourtec.com.br",
+  baseURL: "https://rsvpbackenddev.fourtec.com.br/",
 });

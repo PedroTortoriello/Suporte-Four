@@ -6,6 +6,7 @@ import SignIn from './pages/Authentication/SignIn';
 import TicketTable from './pages/Table/Table';
 import Profile from './pages/Profile';
 import SignUp from './pages/Authentication/SignUp';
+import Realizados from './pages/Atendimentos/Table';
 
 
 function App() {
@@ -33,6 +34,16 @@ function App() {
             <PageTitle title="Suporte | Four" />
             <SignIn />
           </>
+        }
+      />
+
+      <Route
+        path="/atendimentos/Table"
+        element={
+          <>
+          <PageTitle title="Suporte | Four" />
+          <Realizados/>
+          </> 
         }
       />
       
